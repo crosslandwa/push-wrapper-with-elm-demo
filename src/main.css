@@ -1,0 +1,67 @@
+/*
+  elm-hot creates an additional div wrapper around the app to make HMR possible.
+  This could break styling in development mode if you are using Elm UI.
+
+  More context in the issue:
+    https://github.com/halfzebra/create-elm-app/issues/320
+*/
+[data-elm-hot="true"] {
+  height: inherit;
+}
+
+body {
+  font-family: 'Source Sans Pro', 'Trebuchet MS', 'Lucida Grande', 'Bitstream Vera Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  text-align: center;
+  color: #293c4b;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+img {
+  margin: 20px 0;
+  max-width: 200px;
+}
+
+.wac-grid {
+  background: grey;
+  margin: auto;
+  position: relative;
+  width: 80%;
+  max-width: 36.5rem;
+}
+
+.wac-grid:before {
+    content:     "";
+    display:     block;
+    padding-top: 80%;
+}
+
+.wac-grid__button {
+  height: 11.375%;
+  width: 11.375%;
+  border: solid 1px black;
+  border-radius: 0.5em;
+  position: absolute;
+  box-shadow: inset 0px 0px 1em 0 #888888
+}
+
+.wac-grid__button--x-0 { left: 1%; }
+.wac-grid__button--x-1 { left: 13.375%; }
+.wac-grid__button--x-2 { left: 25.75%; }
+.wac-grid__button--x-3 { left: 38.125%; }
+.wac-grid__button--x-4 { left: 50.5%; }
+.wac-grid__button--x-5 { left: 62.875%; }
+.wac-grid__button--x-6 { left: 75.25%; }
+.wac-grid__button--x-7 { left: 87.625%; }
+/* note 0, 0 is bottom left */
+.wac-grid__button--y-7 { top: 1%; }
+.wac-grid__button--y-6 { top: 13.375%; }
+.wac-grid__button--y-5 { top: 25.75%; }
+.wac-grid__button--y-4 { top: 38.125%; }
+.wac-grid__button--y-3 { top: 50.5%; }
+.wac-grid__button--y-2 { top: 62.875%; }
+.wac-grid__button--y-1 { top: 75.25%; }
+.wac-grid__button--y-0 { top: 87.625%; }
