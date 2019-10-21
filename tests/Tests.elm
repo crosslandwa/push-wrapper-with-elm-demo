@@ -10,49 +10,37 @@ all : Test
 all =
   describe "WAC Machine"
     [ describe "Simple blues"
-      [ test "LEDs are off initially" <|
+      [ test "LEDs are off initially and are toggled on/off by subsequent grid presses" <|
         \_ ->
           let
-            model = SimpleBlues.initModel
+            applyGridPressToFirstElement i model =
+              SimpleBlues.update 0 model
+            firstElementToLED model =
+              SimpleBlues.gridButton 0 model
+            applyGridPressToFirstElementTimes : Int -> Grid.GridButton msg
+            applyGridPressToFirstElementTimes n =
+              firstElementToLED (List.foldl applyGridPressToFirstElement SimpleBlues.initModel (List.range 1 n))
           in
-            Expect.equal Grid.off (SimpleBlues.gridButton 0 model)
-      , test "A grid press changes an LED that is off to blue" <|
-        \_ ->
-          let
-            model = SimpleBlues.initModel
-          in
-            Expect.equal Grid.blue (SimpleBlues.gridButton 0 (SimpleBlues.update 0 model))
-      , test "A grid press changes an LED that is blue to off" <|
-        \_ ->
-          let
-            model = SimpleBlues.update 0 SimpleBlues.initModel
-          in
-            Expect.equal Grid.off (SimpleBlues.gridButton 0 (SimpleBlues.update 0 model))
+            Expect.equal
+              [Grid.off, Grid.blue, Grid.off, Grid.blue, Grid.off, Grid.blue]
+              (List.map applyGridPressToFirstElementTimes (List.range 0 5))
       ]
     , describe "Sneaky greens"
-      [ test "LEDs are off initially" <|
+      [ test "LEDs are off initially and move through red/green/off on subsequent grid presses" <|
         \_ ->
           let
-            model = SneakyGreens.initModel
+            -- use recursion instead of List.foldl to see how both approaches look
+            applyGridPressToFirstElement i model =
+              if i <= 0 then
+                model
+              else
+                applyGridPressToFirstElement (i - 1) (SneakyGreens.update 0 model)
+            applyGridPressToFirstElementTimes : Int -> Grid.GridButton msg
+            applyGridPressToFirstElementTimes n =
+              SneakyGreens.gridButton 0 (applyGridPressToFirstElement n SneakyGreens.initModel)
           in
-            Expect.equal Grid.off (SneakyGreens.gridButton 0 model)
-      , test "A grid press changes an LED that is off to red" <|
-        \_ ->
-          let
-            model = SneakyGreens.initModel
-          in
-            Expect.equal Grid.red (SneakyGreens.gridButton 0 (SneakyGreens.update 0 model))
-      , test "A grid press changes an LED that is red to green" <|
-        \_ ->
-          let
-            model = SneakyGreens.update 0 (SneakyGreens.initModel)
-          in
-            Expect.equal Grid.green (SneakyGreens.gridButton 0 (SneakyGreens.update 0 model))
-      , test "A grid press changes an LED that is green to off" <|
-        \_ ->
-          let
-            model = SneakyGreens.update 0 (SneakyGreens.update 0 (SneakyGreens.initModel))
-          in
-            Expect.equal Grid.off (SneakyGreens.gridButton 0 (SneakyGreens.update 0 model))
+            Expect.equal
+              [Grid.off, Grid.red, Grid.green, Grid.off, Grid.red, Grid.green]
+              (List.map applyGridPressToFirstElementTimes (List.range 0 5))
       ]
     ]

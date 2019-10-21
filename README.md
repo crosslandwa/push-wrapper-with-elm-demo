@@ -31,7 +31,7 @@ This will build the app, serve it on `localhost:3000` open the default browser (
 
 ## Tests
 
-The logic of the blue/green "layers" (see *multiple application layers* below) is tested via some fairly verbose tests (see `tests/Tests.elm`) that can be run via:
+The logic of the blue/green "layers" (see *multiple application layers* below) is tested via `tests/Tests.elm` - these can be run by:
 ```
 elm-app test
 ```
