@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Browser
+import GameOfLifeGridAdaptor
 import Grid exposing (GridButton)
 import Ports
 import SimpleBlues
@@ -14,6 +15,7 @@ import Html.Events
 
 type alias Model =
   { blues: SimpleBlues.Model
+  , gameOfLife: GameOfLifeGridAdaptor.Model
   , greens: SneakyGreens.Model
   , appLayer: AppLayer
   }
@@ -21,11 +23,13 @@ type alias Model =
 type AppLayer
   = ShowSimpleBlues
   | ShowSneakyGreens
+  | ShowGameOfLifeGridAdaptor
 
 init : ( Model, Cmd Msg )
 init =
   (
   { blues = SimpleBlues.initModel
+  , gameOfLife = GameOfLifeGridAdaptor.initModel
   , greens = SneakyGreens.initModel
   , appLayer = ShowSimpleBlues
   }, Cmd.none )
@@ -41,7 +45,13 @@ toggleAppLayer : Model -> (Model, Cmd Msg)
 toggleAppLayer model =
   (
     { model | appLayer =
-        if model.appLayer == ShowSimpleBlues then ShowSneakyGreens else ShowSimpleBlues }
+      if model.appLayer == ShowSimpleBlues then
+        ShowSneakyGreens
+      else if model.appLayer == ShowSneakyGreens then
+        ShowGameOfLifeGridAdaptor
+      else
+        ShowSimpleBlues
+    }
     , Cmd.none
   )
 
@@ -73,6 +83,11 @@ update msg model =
                   { model | greens = SneakyGreens.update index model.greens }
                   , Cmd.none
                 )
+              ShowGameOfLifeGridAdaptor ->
+                (
+                  { model | gameOfLife = GameOfLifeGridAdaptor.update index model.gameOfLife }
+                  , Cmd.none
+                )
 
 
 ---- VIEW ----
@@ -84,6 +99,8 @@ appLayerGridButton m =
       Grid.blue
     ShowSneakyGreens ->
       Grid.green
+    ShowGameOfLifeGridAdaptor ->
+      Grid.red
 
 gridButton : Int -> Model -> GridButton msg
 gridButton index model =
@@ -102,6 +119,8 @@ gridButton index model =
           SimpleBlues.gridButton index model.blues
         ShowSneakyGreens ->
           SneakyGreens.gridButton index model.greens
+        ShowGameOfLifeGridAdaptor ->
+          GameOfLifeGridAdaptor.gridButton index model.gameOfLife
 
 view : Model -> Html Msg
 view model =

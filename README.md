@@ -31,7 +31,7 @@ This will build the app, serve it on `localhost:3000` open the default browser (
 
 ## Tests
 
-The logic of the blue/green "layers" (see *multiple application layers* below) is tested via `tests/Tests.elm` - these can be run by:
+The logic of the blue/green/game of life "layers" (see *multiple application layers* below) is tested via `tests/Tests.elm` - these can be run by:
 ```
 elm-app test
 ```
@@ -46,7 +46,7 @@ These tests **could be much better written** - in their verbose state they are p
 
 ### Multiple application layers
 
-I was interested in how to model multiple "layers" being controlled/displayed on the Push grid "at the same time" within the Elm app. This two "layers" here (simple blues and sneaky greens) are logically simple, but forced me to think about how this might be handled in a way that was scalable for a complex application (e.g. a step-sequencer with multiple patterns, voices, etc)
+I was interested in how to model multiple "layers" being controlled/displayed on the Push grid "at the same time" within the Elm app. The three "layers" here (simple blues, sneaky greens and game of life) are logically simple, but forced me to think about how this might be handled in a way that was scalable for a complex application (e.g. a step-sequencer with multiple patterns, voices, etc)
 - I started with "everything handled in one model/update/view in `src/Main.elm`"
   - Mixing all the concerns into one file made things difficult to reason about, as you'd expect, but was a starting point from which I could refactor
 - The "main" module ended up:
@@ -56,6 +56,10 @@ I was interested in how to model multiple "layers" being controlled/displayed on
   - Aggregating the "state" of each layer into the master model, but avoiding interacting with it (for updates/view rendering) via Elms [opaque types](https://8thlight.com/blog/mike-knepper/2019/02/26/types-of-types-in-elm.html)
 - The "layers" (simple blues/sneaky greens) now become well encapsulated and straightforward to test (they functional and stateless)
 	- As a proof of concept I'm happy this would be scalable, however, I can see the approach falling down if the grid ever has to show "multiple things at the same time" (e.g. the top half shows layer A, whilst the bottom half shows layer B)...
+- Following this approach the third GameOfLife layer was written via TDD
+  - initially it was difficult to test as the exposed "gridish" API (`update`/`gridbutton`) made the intent of the tests unclear
+  - by refactoring to separate a GameOfLife module with a descriptive API (exposing `toggleCell`, `evolve`, `isAlive`) the tests became easy to write (and thus the actual logic easy to deliver via TDD)
+  - an (untested) GameOfLifeAdaptor module was created to adapt between the "gridish" API and the GameOfLife API. This means the GameOfLife API is exposed for testing, but not used directly from the `Main` module. This feels like another refinement that would improve _scalability_ if the app had several (complex) layers
 
 
 ### DOM rendering
