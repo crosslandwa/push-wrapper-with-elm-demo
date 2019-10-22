@@ -13,59 +13,74 @@ initModel : Model
 initModel =
   Model (Array.repeat 36 Dead)
 
-toggle : CellState -> CellState
-toggle current =
-  case current of
-    Dead ->
-      Alive
-    Alive ->
-      Dead
+type alias Coordinate = { x: Int, y: Int, index: Int }
 
-update : Int -> Model -> Model
-update index (Model values) =
-  Model (Array.indexedMap (\i x -> if i == index then toggle x else x) values)
+coordFromIndex index =
+  coordFromXY (modBy 6 index) (index // 6)
 
-indexFrom : Int -> Int -> Int
-indexFrom x y =
-  x + y * 6
+coordFromXY x y =
+  { x = x, y = y, index = x + y * 6 }
+
+relativeCoordinate : Int -> Int -> Coordinate -> Maybe Coordinate
+relativeCoordinate dx dy coord =
+  let
+    x = coord.x + dx
+    y = coord.y + dy
+  in
+    if (x >= 0) && (x <= 5) && (y >= 0) && (y <= 5) then
+      Just (coordFromXY x y)
+    else
+      Nothing
+
+cellStateAt : Coordinate -> Model -> CellState
+cellStateAt c (Model cells) =
+  Maybe.withDefault Dead (Array.get c.index cells)
 
 isAlive : Int -> Int -> Model -> Bool
 isAlive x y model =
-  case model of
-    Model values ->
-      Alive == Maybe.withDefault Dead (Array.get (indexFrom x y) values)
+  Alive == cellStateAt (coordFromXY x y) model
 
 toggleCell : Int -> Int -> Model -> Model
 toggleCell x y model =
-  update (indexFrom x y) model
+  let
+    coord = coordFromXY x y
+    toggle cellState =
+      case cellState of
+        Dead ->
+          Alive
+        Alive ->
+          Dead
+  in
+    nextModel (\i cell -> if i == coord.index then toggle cell else cell) model
+
+nextModel : (Int -> CellState -> CellState) -> Model -> Model
+nextModel transform (Model cells) =
+  Model (Array.indexedMap transform cells)
 
 evolve : Model -> Model
 evolve model =
-  case model of
-    (Model values) ->
-      Model (Array.indexedMap (\i cell -> evolveCell cell (neighbourStatesFor i model)) values)
+  nextModel
+    (\i cellState -> neighbourStatesFor (coordFromIndex i) model |> evolveCell cellState)
+    model
 
-neighbourStatesFor index (Model values) =
+neighbourStatesFor coord model =
   let
-    x = modBy 6 index
-    y = index // 6
-    neighbourLocations = List.filter
-      (\(xx, yy) -> (xx >= 0) && (xx <= 5) && (yy >= 0) && (yy <= 5))
-      [ (x - 1, y - 1), (x, y - 1), (x + 1, y - 1)
-      , (x - 1, y), (x + 1, y)
-      , (x - 1, y + 1), (x, y + 1), (x + 1, y + 1)
-      ]
+    possibleNeighbourCoordinates = List.map
+      (\(dx, dy) -> relativeCoordinate dx dy coord)
+      [ (-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1) ]
+    filterNothings values =
+      List.filterMap identity values
   in
-    List.map (\(xxx, yyy) -> Maybe.withDefault Dead (Array.get (indexFrom xxx yyy) values)) neighbourLocations
+    possibleNeighbourCoordinates
+      |> filterNothings
+      |> List.map (\(c) -> cellStateAt c model)
 
 evolveCell : CellState -> List CellState -> CellState
-evolveCell state neighbourStates =
+evolveCell currentState neighbourStates =
   let
-    livingNeighbours = (List.length <| List.filter (\x -> x == Alive) neighbourStates)
+    livingNeighbours = List.length <| List.filter (\state -> state == Alive) neighbourStates
   in
-    if livingNeighbours == 3 then
-      Alive
-    else if livingNeighbours == 2 && state == Alive then
+    if (livingNeighbours == 3) || (livingNeighbours == 2 && currentState == Alive) then
       Alive
     else
       Dead
