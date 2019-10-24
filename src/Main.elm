@@ -128,7 +128,10 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Ports.hardwareGridButtonPressed (\{x, y, velocity} -> GridButtonPressed x y)
+    Sub.batch
+      [ Ports.hardwareGridButtonPressed (\{x, y, velocity} -> GridButtonPressed x y)
+      , Ports.hardwareGridSelectButtonPressed (\{x} -> GridSelectButtonPressed x)
+      ]
 
 ---- PROGRAM ----
 
