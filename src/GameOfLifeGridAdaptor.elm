@@ -1,8 +1,9 @@
-module GameOfLifeGridAdaptor exposing (Model, initModel, gridButton, update)
+module GameOfLifeGridAdaptor exposing (Model, evolve, initModel, gridButton, subscriptions, update)
 
 import Array exposing (Array)
 import GridButton
 import GameOfLife
+import Time
 
 type Model
  = Model (GameOfLife.Model)
@@ -17,9 +18,7 @@ gridButton index (Model model) =
     x = modBy 8 index
     y = index // 8
   in
-    if (x == 0 || x == 7 || y == 0 || y == 7) then
-      GridButton.off
-    else if (GameOfLife.isAlive (x - 1) (y - 1) model) then
+    if (GameOfLife.isAlive x y model) then
       GridButton.red
     else
       GridButton.off
@@ -30,7 +29,14 @@ update index (Model model) =
     x = modBy 8 index
     y = index // 8
   in
-    if (x == 0 || x == 7 || y == 0 || y == 7) then
-      Model (GameOfLife.evolve model)
-    else
-      Model (GameOfLife.toggleCell (x - 1) (y - 1) model)
+    Model (GameOfLife.toggleCell x y model)
+
+evolve : Model -> Model
+evolve (Model model) =
+  Model (GameOfLife.evolve model)
+
+subscriptions : Bool -> msg -> Sub msg
+subscriptions isActive msg =
+  case isActive of
+    True -> Time.every 200 (\_ -> msg)
+    False -> Sub.none

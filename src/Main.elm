@@ -42,6 +42,7 @@ init =
 type Msg
   = GridButtonPressed Int Int
   | GridSelectButtonPressed Int
+  | UpdateGameOfLife
 
 toggleAppLayer : Model -> (Model, Cmd Msg)
 toggleAppLayer model =
@@ -60,6 +61,11 @@ toggleAppLayer model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+    UpdateGameOfLife ->
+      (
+        { model | gameOfLife = GameOfLifeGridAdaptor.evolve model.gameOfLife }
+        , Cmd.none
+      )
     GridSelectButtonPressed x ->
       toggleAppLayer model
     GridButtonPressed x y ->
@@ -131,6 +137,7 @@ subscriptions model =
     Sub.batch
       [ Ports.hardwareGridButtonPressed (\{x, y, velocity} -> GridButtonPressed x y)
       , Ports.hardwareGridSelectButtonPressed (\{x} -> GridSelectButtonPressed x)
+      , GameOfLifeGridAdaptor.subscriptions (model.appLayer == ShowGameOfLifeGridAdaptor) UpdateGameOfLife
       ]
 
 ---- PROGRAM ----

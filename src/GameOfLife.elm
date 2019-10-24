@@ -11,15 +11,15 @@ type Model
 
 initModel : Model
 initModel =
-  Model (Array.repeat 36 Dead)
+  Model (Array.repeat 64 Dead)
 
 type alias Coordinate = { x: Int, y: Int, index: Int }
 
 coordFromIndex index =
-  coordFromXY (modBy 6 index) (index // 6)
+  coordFromXY (modBy 8 index) (index // 8)
 
 coordFromXY x y =
-  { x = x, y = y, index = x + y * 6 }
+  { x = x, y = y, index = x + y * 8 }
 
 relativeCoordinate : Int -> Int -> Coordinate -> Maybe Coordinate
 relativeCoordinate dx dy coord =
@@ -27,7 +27,7 @@ relativeCoordinate dx dy coord =
     x = coord.x + dx
     y = coord.y + dy
   in
-    if (x >= 0) && (x <= 5) && (y >= 0) && (y <= 5) then
+    if (x >= 0) && (x <= 7) && (y >= 0) && (y <= 7) then
       Just (coordFromXY x y)
     else
       Nothing

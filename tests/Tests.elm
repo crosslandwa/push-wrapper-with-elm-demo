@@ -3,7 +3,7 @@ module Tests exposing (..)
 import Test exposing (..)
 import Expect
 import GameOfLife
-import Grid
+import GridButton exposing (GridButton)
 import SimpleBlues
 import SneakyGreens
 
@@ -14,7 +14,7 @@ all =
       [ test "LEDs are off initially and are toggled on/off by subsequent grid presses" <|
         \_ ->
           let
-            applyGridPressToFirstElementTimes : Int -> GridButton.GridButton msg
+            applyGridPressToFirstElementTimes : Int -> GridButton msg
             applyGridPressToFirstElementTimes n =
               List.range 1 n
                 |> List.foldl (\i model -> SimpleBlues.update 0 model) SimpleBlues.initModel
@@ -34,7 +34,7 @@ all =
                 model
               else
                 applyGridPressToFirstElement (i - 1) (SneakyGreens.update 0 model)
-            applyGridPressToFirstElementTimes : Int -> GridButton.GridButton msg
+            applyGridPressToFirstElementTimes : Int -> GridButton msg
             applyGridPressToFirstElementTimes n =
               SneakyGreens.gridButton 0 (applyGridPressToFirstElement n SneakyGreens.initModel)
           in
