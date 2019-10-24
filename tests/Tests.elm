@@ -14,7 +14,7 @@ all =
       [ test "LEDs are off initially and are toggled on/off by subsequent grid presses" <|
         \_ ->
           let
-            applyGridPressToFirstElementTimes : Int -> Grid.GridButton msg
+            applyGridPressToFirstElementTimes : Int -> GridButton.GridButton msg
             applyGridPressToFirstElementTimes n =
               List.range 1 n
                 |> List.foldl (\i model -> SimpleBlues.update 0 model) SimpleBlues.initModel
@@ -22,7 +22,7 @@ all =
           in
             List.range 0 5
               |> List.map applyGridPressToFirstElementTimes
-              |> Expect.equal [Grid.off, Grid.blue, Grid.off, Grid.blue, Grid.off, Grid.blue]
+              |> Expect.equal [GridButton.off, GridButton.blue, GridButton.off, GridButton.blue, GridButton.off, GridButton.blue]
       ]
     , describe "Sneaky greens"
       [ test "LEDs are off initially and move through red/green/off on subsequent grid presses" <|
@@ -34,13 +34,13 @@ all =
                 model
               else
                 applyGridPressToFirstElement (i - 1) (SneakyGreens.update 0 model)
-            applyGridPressToFirstElementTimes : Int -> Grid.GridButton msg
+            applyGridPressToFirstElementTimes : Int -> GridButton.GridButton msg
             applyGridPressToFirstElementTimes n =
               SneakyGreens.gridButton 0 (applyGridPressToFirstElement n SneakyGreens.initModel)
           in
             List.range 0 5
               |> List.map applyGridPressToFirstElementTimes
-              |> Expect.equal [Grid.off, Grid.red, Grid.green, Grid.off, Grid.red, Grid.green]
+              |> Expect.equal [GridButton.off, GridButton.red, GridButton.green, GridButton.off, GridButton.red, GridButton.green]
       ]
     , describe "Game of life"
       [ test "all cells are initially off and can be toggled on/off with presses" <|

@@ -1,4 +1,4 @@
-module Grid exposing (GridButton, off, green, red, blue)
+module GridButton exposing (GridButton, off, green, red, blue)
 
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, style)
@@ -26,7 +26,7 @@ toBackgroundColor values =
 
 toRGBDataAttribute : List Int -> String
 toRGBDataAttribute values =
-  "[" ++ String.join ", " (List.map String.fromInt values) ++ "]"
+  "[" ++ String.join ", " (List.map String.fromInt (List.take 3 values)) ++ "]"
 
 off : GridButton msg
 off x y action =

@@ -1,7 +1,7 @@
 module SimpleBlues exposing (Model, initModel, gridButton, update)
 
 import Array exposing (Array)
-import Grid
+import GridButton
 
 type OffOn
   = Off
@@ -22,15 +22,15 @@ toggle current =
     On ->
       Off
 
-gridButton : Int -> Model -> Grid.GridButton msg
+gridButton : Int -> Model -> GridButton.GridButton msg
 gridButton index model =
   case model of
     Model values ->
       case Maybe.withDefault Off (Array.get index values) of
         Off ->
-          Grid.off
+          GridButton.off
         On ->
-          Grid.blue
+          GridButton.blue
 
 update : Int -> Model -> Model
 update index (Model values) =

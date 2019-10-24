@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Browser
 import GameOfLifeGridAdaptor
-import Grid exposing (GridButton)
+import GridButton exposing (GridButton)
 import Ports
 import SimpleBlues
 import SneakyGreens
@@ -96,11 +96,11 @@ appLayerGridButton : Model -> GridButton msg
 appLayerGridButton m =
   case m.appLayer of
     ShowSimpleBlues ->
-      Grid.blue
+      GridButton.blue
     ShowSneakyGreens ->
-      Grid.green
+      GridButton.green
     ShowGameOfLifeGridAdaptor ->
-      Grid.red
+      GridButton.red
 
 gridButton : Int -> Model -> GridButton msg
 gridButton index model =

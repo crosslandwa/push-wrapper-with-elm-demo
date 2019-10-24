@@ -1,7 +1,7 @@
 module GameOfLifeGridAdaptor exposing (Model, initModel, gridButton, update)
 
 import Array exposing (Array)
-import Grid
+import GridButton
 import GameOfLife
 
 type Model
@@ -11,18 +11,18 @@ initModel : Model
 initModel =
   Model (GameOfLife.initModel)
 
-gridButton : Int -> Model -> Grid.GridButton msg
+gridButton : Int -> Model -> GridButton.GridButton msg
 gridButton index (Model model) =
   let
     x = modBy 8 index
     y = index // 8
   in
     if (x == 0 || x == 7 || y == 0 || y == 7) then
-      Grid.off
+      GridButton.off
     else if (GameOfLife.isAlive (x - 1) (y - 1) model) then
-      Grid.red
+      GridButton.red
     else
-      Grid.off
+      GridButton.off
 
 update : Int -> Model -> Model
 update index (Model model) =

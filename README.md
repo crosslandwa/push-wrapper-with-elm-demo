@@ -80,7 +80,7 @@ Push LEDs are turned on/off by sending MIDI messages to the Push hardware via pu
 - Write a Elm 'view library' to send the appropriate push messages as part of Elms view rendering
   - Discarded as this would require a lower-level understanding of Elm than I wanted to go into for this project
 - Use JS mutation observers to watch for changes of the Elm rendered (DOM) view, and keep the hardware LEDs in-sync with that
-	- The DOM representation (HTML buttons) add data-attributes to describe the buttons grid position (x/y coordinates) and the RGB colour (see `src/Grid.elm)
+	- The DOM representation (HTML buttons) add data-attributes to describe the buttons grid position (x/y coordinates) and the RGB colour (see `src/GridButton.elm)
 	- A mutation observer is added that interacts with the push-wrapper library in the (`src/index.js`) `bindGridPadLeds` function
 	- This approach ensures Elm "owns" what the grid should look like (through it's view rendering) at the cost of some hidden coupling between the HTML button rendering at the `bindGridPadLeds` function
 

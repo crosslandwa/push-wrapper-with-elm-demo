@@ -1,7 +1,7 @@
 module SneakyGreens exposing (Model, gridButton, initModel, update)
 
 import Array exposing (Array)
-import Grid
+import GridButton
 
 type Model
  = Model (Array TriState)
@@ -29,14 +29,14 @@ update : Int -> Model -> Model
 update index (Model values) =
   Model (Array.indexedMap (\i x -> if i == index then rotateState x else x) values)
 
-gridButton : Int -> Model -> Grid.GridButton msg
+gridButton : Int -> Model -> GridButton.GridButton msg
 gridButton index model =
   case model of
     Model values ->
       case Maybe.withDefault A (Array.get index values) of
         A ->
-          Grid.off
+          GridButton.off
         B ->
-          Grid.red
+          GridButton.red
         C ->
-          Grid.green
+          GridButton.green
