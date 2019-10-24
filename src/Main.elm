@@ -3,6 +3,7 @@ module Main exposing (..)
 import Browser
 import GameOfLifeGridAdaptor
 import GridButton exposing (GridButton)
+import GridSelectButton exposing (GridSelectButton)
 import Ports
 import SimpleBlues
 import SneakyGreens
@@ -40,6 +41,7 @@ init =
 
 type Msg
   = GridButtonPressed Int Int
+  | GridSelectButtonPressed Int
 
 toggleAppLayer : Model -> (Model, Cmd Msg)
 toggleAppLayer model =
@@ -58,74 +60,59 @@ toggleAppLayer model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
+    GridSelectButtonPressed x ->
+      toggleAppLayer model
     GridButtonPressed x y ->
       let
         index = y * 8 + x
       in
-        case index of
-          0 ->
-            toggleAppLayer model
-          7 ->
-            toggleAppLayer model
-          56 ->
-            toggleAppLayer model
-          63 ->
-            toggleAppLayer model
-          _ ->
-            case model.appLayer of
-              ShowSimpleBlues ->
-                (
-                  { model | blues = SimpleBlues.update index model.blues }
-                  , Cmd.none
-                )
-              ShowSneakyGreens ->
-                (
-                  { model | greens = SneakyGreens.update index model.greens }
-                  , Cmd.none
-                )
-              ShowGameOfLifeGridAdaptor ->
-                (
-                  { model | gameOfLife = GameOfLifeGridAdaptor.update index model.gameOfLife }
-                  , Cmd.none
-                )
+        case model.appLayer of
+          ShowSimpleBlues ->
+            (
+              { model | blues = SimpleBlues.update index model.blues }
+              , Cmd.none
+            )
+          ShowSneakyGreens ->
+            (
+              { model | greens = SneakyGreens.update index model.greens }
+              , Cmd.none
+            )
+          ShowGameOfLifeGridAdaptor ->
+            (
+              { model | gameOfLife = GameOfLifeGridAdaptor.update index model.gameOfLife }
+              , Cmd.none
+            )
 
 
 ---- VIEW ----
 
-appLayerGridButton : Model -> GridButton msg
-appLayerGridButton m =
+gridSelectButton : Model -> GridSelectButton msg
+gridSelectButton m =
   case m.appLayer of
     ShowSimpleBlues ->
-      GridButton.blue
+      GridSelectButton.blue
     ShowSneakyGreens ->
-      GridButton.green
+      GridSelectButton.green
     ShowGameOfLifeGridAdaptor ->
-      GridButton.red
+      GridSelectButton.red
 
 gridButton : Int -> Model -> GridButton msg
 gridButton index model =
-  case index of
-    0 ->
-      appLayerGridButton model
-    7 ->
-      appLayerGridButton model
-    56 ->
-      appLayerGridButton model
-    63 ->
-      appLayerGridButton model
-    _ ->
-      case model.appLayer of
-        ShowSimpleBlues ->
-          SimpleBlues.gridButton index model.blues
-        ShowSneakyGreens ->
-          SneakyGreens.gridButton index model.greens
-        ShowGameOfLifeGridAdaptor ->
-          GameOfLifeGridAdaptor.gridButton index model.gameOfLife
+  case model.appLayer of
+    ShowSimpleBlues ->
+      SimpleBlues.gridButton index model.blues
+    ShowSneakyGreens ->
+      SneakyGreens.gridButton index model.greens
+    ShowGameOfLifeGridAdaptor ->
+      GameOfLifeGridAdaptor.gridButton index model.gameOfLife
 
 view : Model -> Html Msg
 view model =
   div []
     [ h1 [] [ text "WAC machine" ]
+    , div
+      [ class "wac-grid-select"]
+      (List.map (\x -> (gridSelectButton model) x (GridSelectButtonPressed x)) (List.range 0 7))
     , div [ class "wac-grid"]
       (List.map (\i ->
         let
