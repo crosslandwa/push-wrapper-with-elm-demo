@@ -1,4 +1,4 @@
-module Tests exposing (..)
+module GameOfLifeTests exposing (..)
 
 import Test exposing (..)
 import Expect
