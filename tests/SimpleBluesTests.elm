@@ -4,8 +4,6 @@ import Test exposing (..)
 import Expect
 import SimpleBlues
 
-type DummyMsg = DummyMsg
-
 all : Test
 all =
   describe "Simple blues"

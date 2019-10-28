@@ -1,4 +1,4 @@
-module SneakyGreens exposing (Model, gridButton, initModel, update)
+module SneakyGreens exposing (Model, Msg, TriState(..), elementState, gridButton, gridButtonPressed, initModel, update)
 
 import Array exposing (Array)
 import GridButton exposing (GridButton)
@@ -6,37 +6,61 @@ import GridButton exposing (GridButton)
 type Model
  = Model (Array TriState)
 
+
+type Msg
+ = Rotate Int
+
+
 initModel : Model
 initModel =
   Model (Array.repeat 64 A)
+
 
 type TriState
   = A
   | B
   | C
 
+
 rotateState : TriState -> TriState
 rotateState triState =
   case triState of
-    A ->
-      B
-    B ->
-      C
-    C ->
-      A
+    A -> B
+    B -> C
+    C -> A
 
-update : Int -> Model -> Model
-update index (Model values) =
-  Model (Array.indexedMap (\i x -> if i == index then rotateState x else x) values)
 
-gridButton : Int -> Int -> Model -> (msg -> GridButton msg)
+update : Msg -> Model -> Model
+update msg (Model values) =
+  case msg of
+    Rotate index ->
+      Model (Array.indexedMap (\i x -> if i == index then rotateState x else x) values)
+
+
+indexFrom x y =
+  x + y * 8
+
+
+gridButton : Int -> Int -> Model -> GridButton Msg
 gridButton x y model =
-  case model of
-    Model values ->
-      case Maybe.withDefault A (Array.get (x + y * 8) values) of
-        A ->
-          GridButton.off x y
-        B ->
-          GridButton.red x y
-        C ->
-          GridButton.green x y
+  let
+    index = indexFrom x y
+    msg = Rotate index
+  in
+    case elementState index model of
+      A ->
+        GridButton.off x y msg
+      B ->
+        GridButton.red x y msg
+      C ->
+        GridButton.green x y msg
+
+
+gridButtonPressed : Int -> Int -> Msg
+gridButtonPressed x y =
+  Rotate (indexFrom x y)
+
+
+elementState : Int -> Model -> TriState
+elementState index (Model values) =
+  Maybe.withDefault A (Array.get index values)

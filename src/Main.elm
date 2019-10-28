@@ -40,55 +40,30 @@ init =
 ---- UPDATE ----
 
 type Msg
-  = GridButtonPressed Int Int
-  | GridSelectButtonPressed Int
+  = GridSelectButtonPressed Int
   | GameOfLifeGridAdaptorMsg GameOfLifeGridAdaptor.Msg
   | SimpleBluesMsg SimpleBlues.Msg
+  | SneakyGreensMsg SneakyGreens.Msg
 
-toggleAppLayer : Model -> (Model, Cmd Msg)
-toggleAppLayer model =
-  (
-    { model | appLayer =
-      if model.appLayer == ShowSimpleBlues then
-        ShowSneakyGreens
-      else if model.appLayer == ShowSneakyGreens then
-        ShowGameOfLifeGridAdaptor
-      else
-        ShowSimpleBlues
-    }
-    , Cmd.none
-  )
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    GameOfLifeGridAdaptorMsg nestedMsg ->
-      (
+  ( case msg of
+      GameOfLifeGridAdaptorMsg nestedMsg ->
         { model | gameOfLife = GameOfLifeGridAdaptor.update nestedMsg model.gameOfLife }
-        , Cmd.none
-      )
-    GridSelectButtonPressed x ->
-      toggleAppLayer model
-    GridButtonPressed x y ->
-      let
-        index = y * 8 + x
-      in
-        case model.appLayer of
-          ShowSimpleBlues ->
-            (model , Cmd.none)
-          ShowSneakyGreens ->
-            (
-              { model | greens = SneakyGreens.update index model.greens }
-              , Cmd.none
-            )
-          ShowGameOfLifeGridAdaptor ->
-            (model ,Cmd.none)
-    SimpleBluesMsg nestedMsg ->
-      (
+      GridSelectButtonPressed x ->
+        { model | appLayer =
+          case model.appLayer of
+            ShowSimpleBlues -> ShowSneakyGreens
+            ShowSneakyGreens -> ShowGameOfLifeGridAdaptor
+            ShowGameOfLifeGridAdaptor -> ShowSimpleBlues
+        }
+      SimpleBluesMsg nestedMsg ->
         { model | blues = SimpleBlues.update nestedMsg model.blues }
-        , Cmd.none
-      )
-
+      SneakyGreensMsg nestedMsg ->
+        { model | greens = SneakyGreens.update nestedMsg model.greens }
+  , Cmd.none
+  )
 
 ---- VIEW ----
 
@@ -108,7 +83,7 @@ gridButton x y model =
     ShowSimpleBlues ->
       GridButton.map SimpleBluesMsg (SimpleBlues.gridButton x y model.blues)
     ShowSneakyGreens ->
-      SneakyGreens.gridButton x y model.greens (GridButtonPressed x y)
+      GridButton.map SneakyGreensMsg (SneakyGreens.gridButton x y model.greens)
     ShowGameOfLifeGridAdaptor ->
       GridButton.map GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.gridButton x y model.gameOfLife)
 
@@ -140,7 +115,7 @@ subscriptions model =
             ShowSimpleBlues ->
               SimpleBluesMsg (SimpleBlues.gridButtonPressed x y)
             ShowSneakyGreens ->
-              GridButtonPressed x y
+              SneakyGreensMsg (SneakyGreens.gridButtonPressed x y)
             ShowGameOfLifeGridAdaptor ->
               GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.gridButtonPressed x y)
         )
