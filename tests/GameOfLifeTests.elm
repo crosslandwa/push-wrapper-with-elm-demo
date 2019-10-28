@@ -83,7 +83,7 @@ all =
           |> GameOfLife.evolve
           |> GameOfLife.isAlive 0 0
           |> Expect.equal True
-    , test "a live cell with 4 alive neighbours is alive after evolution" <|
+    , test "a live cell with 4 alive neighbours is dead after evolution" <|
       \_ ->
         GameOfLife.initModel
           |> GameOfLife.toggleCell 1 1
