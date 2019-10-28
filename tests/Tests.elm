@@ -13,28 +13,7 @@ type DummyMsg = DummyMsg
 all : Test
 all =
   describe "WAC Machine"
-    [ describe "Simple blues"
-      [ test "LEDs are off initially and are toggled on/off by subsequent grid presses" <|
-        \_ ->
-          let
-            expectationToHtml : List (Int -> Int -> DummyMsg -> GridButton DummyMsg) -> List (Html DummyMsg)
-            expectationToHtml buttons =
-              List.map (\button -> GridButton.toHtml (button 0 0 DummyMsg)) buttons
-            toHtml : List (DummyMsg -> GridButton DummyMsg) -> List (Html DummyMsg)
-            toHtml buttons =
-              List.map (\b -> GridButton.toHtml (b DummyMsg)) buttons
-            applyGridPressToFirstElementTimes : Int -> (msg -> GridButton msg)
-            applyGridPressToFirstElementTimes n =
-              List.range 1 n
-                |> List.foldl (\i model -> SimpleBlues.update 0 model) SimpleBlues.initModel
-                |> SimpleBlues.gridButton 0 0
-          in
-            List.range 0 5
-              |> List.map applyGridPressToFirstElementTimes
-              |> toHtml
-              |> Expect.equal (expectationToHtml [GridButton.off, GridButton.blue, GridButton.off, GridButton.blue, GridButton.off, GridButton.blue])
-      ]
-    , describe "Sneaky greens"
+    [ describe "Sneaky greens"
       [ test "LEDs are off initially and move through red/green/off on subsequent grid presses" <|
         \_ ->
           let

@@ -43,6 +43,7 @@ type Msg
   = GridButtonPressed Int Int
   | GridSelectButtonPressed Int
   | GameOfLifeGridAdaptorMsg GameOfLifeGridAdaptor.Msg
+  | SimpleBluesMsg SimpleBlues.Msg
 
 toggleAppLayer : Model -> (Model, Cmd Msg)
 toggleAppLayer model =
@@ -74,10 +75,7 @@ update msg model =
       in
         case model.appLayer of
           ShowSimpleBlues ->
-            (
-              { model | blues = SimpleBlues.update index model.blues }
-              , Cmd.none
-            )
+            (model , Cmd.none)
           ShowSneakyGreens ->
             (
               { model | greens = SneakyGreens.update index model.greens }
@@ -85,6 +83,11 @@ update msg model =
             )
           ShowGameOfLifeGridAdaptor ->
             (model ,Cmd.none)
+    SimpleBluesMsg nestedMsg ->
+      (
+        { model | blues = SimpleBlues.update nestedMsg model.blues }
+        , Cmd.none
+      )
 
 
 ---- VIEW ----
@@ -103,7 +106,7 @@ gridButton : Int -> Int -> Model -> GridButton Msg
 gridButton x y model =
   case model.appLayer of
     ShowSimpleBlues ->
-      SimpleBlues.gridButton x y model.blues (GridButtonPressed x y)
+      GridButton.map SimpleBluesMsg (SimpleBlues.gridButton x y model.blues)
     ShowSneakyGreens ->
       SneakyGreens.gridButton x y model.greens (GridButtonPressed x y)
     ShowGameOfLifeGridAdaptor ->
@@ -132,7 +135,15 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-      [ Ports.hardwareGridButtonPressed (\{x, y, velocity} -> GridButtonPressed x y)
+      [ Ports.hardwareGridButtonPressed (\{x, y, velocity} ->
+          case model.appLayer of
+            ShowSimpleBlues ->
+              SimpleBluesMsg (SimpleBlues.gridButtonPressed x y)
+            ShowSneakyGreens ->
+              GridButtonPressed x y
+            ShowGameOfLifeGridAdaptor ->
+              GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.gridButtonPressed x y)
+        )
       , Ports.hardwareGridSelectButtonPressed (\{x} -> GridSelectButtonPressed x)
       , Sub.map GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.subscriptions (model.appLayer == ShowGameOfLifeGridAdaptor))
       ]
