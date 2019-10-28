@@ -1,42 +1,42 @@
-module GameOfLifeGridAdaptor exposing (Model, evolve, initModel, gridButton, subscriptions, update)
+module GameOfLifeGridAdaptor exposing (Model, Msg, initModel, gridButton, gridButtonPressed, subscriptions, update)
 
 import Array exposing (Array)
-import GridButton
+import GridButton exposing (GridButton)
 import GameOfLife
 import Time
 
 type Model
- = Model (GameOfLife.Model)
+ = Model GameOfLife.Model
+
+type Msg
+ = Evolve Time.Posix
+ | GridButtonPressed Int Int
 
 initModel : Model
 initModel =
   Model (GameOfLife.initModel)
 
-gridButton : Int -> Model -> GridButton.GridButton msg
-gridButton index (Model model) =
-  let
-    x = modBy 8 index
-    y = index // 8
-  in
-    if (GameOfLife.isAlive x y model) then
-      GridButton.red
-    else
-      GridButton.off
+gridButton : Int -> Int -> Model -> GridButton Msg
+gridButton x y (Model model) =
+  if (GameOfLife.isAlive x y model) then
+    GridButton.red x y (GridButtonPressed x y)
+  else
+    GridButton.off x y (GridButtonPressed x y)
 
-update : Int -> Model -> Model
-update index (Model model) =
-  let
-    x = modBy 8 index
-    y = index // 8
-  in
-    Model (GameOfLife.toggleCell x y model)
+update : Msg -> Model -> Model
+update msg (Model model) =
+  case msg of
+    Evolve _ ->
+      Model (GameOfLife.evolve model)
+    GridButtonPressed x y ->
+      Model (GameOfLife.toggleCell x y model)
 
-evolve : Model -> Model
-evolve (Model model) =
-  Model (GameOfLife.evolve model)
+gridButtonPressed : Int -> Int -> Msg
+gridButtonPressed x y =
+  GridButtonPressed x y
 
-subscriptions : Bool -> msg -> Sub msg
-subscriptions isActive msg =
+subscriptions : Bool -> Sub Msg
+subscriptions isActive =
   case isActive of
-    True -> Time.every 200 (\_ -> msg)
+    True -> Time.every 200 Evolve
     False -> Sub.none

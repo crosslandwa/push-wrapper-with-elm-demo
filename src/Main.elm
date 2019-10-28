@@ -42,7 +42,7 @@ init =
 type Msg
   = GridButtonPressed Int Int
   | GridSelectButtonPressed Int
-  | UpdateGameOfLife
+  | GameOfLifeGridAdaptorMsg GameOfLifeGridAdaptor.Msg
 
 toggleAppLayer : Model -> (Model, Cmd Msg)
 toggleAppLayer model =
@@ -61,9 +61,9 @@ toggleAppLayer model =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    UpdateGameOfLife ->
+    GameOfLifeGridAdaptorMsg nestedMsg ->
       (
-        { model | gameOfLife = GameOfLifeGridAdaptor.evolve model.gameOfLife }
+        { model | gameOfLife = GameOfLifeGridAdaptor.update nestedMsg model.gameOfLife }
         , Cmd.none
       )
     GridSelectButtonPressed x ->
@@ -84,10 +84,7 @@ update msg model =
               , Cmd.none
             )
           ShowGameOfLifeGridAdaptor ->
-            (
-              { model | gameOfLife = GameOfLifeGridAdaptor.update index model.gameOfLife }
-              , Cmd.none
-            )
+            (model ,Cmd.none)
 
 
 ---- VIEW ----
@@ -102,15 +99,15 @@ gridSelectButton m =
     ShowGameOfLifeGridAdaptor ->
       GridSelectButton.red
 
-gridButton : Int -> Model -> GridButton msg
-gridButton index model =
+gridButton : Int -> Int -> Model -> GridButton Msg
+gridButton x y model =
   case model.appLayer of
     ShowSimpleBlues ->
-      SimpleBlues.gridButton index model.blues
+      SimpleBlues.gridButton x y model.blues (GridButtonPressed x y)
     ShowSneakyGreens ->
-      SneakyGreens.gridButton index model.greens
+      SneakyGreens.gridButton x y model.greens (GridButtonPressed x y)
     ShowGameOfLifeGridAdaptor ->
-      GameOfLifeGridAdaptor.gridButton index model.gameOfLife
+      GridButton.map GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.gridButton x y model.gameOfLife)
 
 view : Model -> Html Msg
 view model =
@@ -125,7 +122,7 @@ view model =
           x = modBy 8 i
           y = i // 8
         in
-          (gridButton i model) x y (GridButtonPressed x y)
+          GridButton.toHtml (gridButton x y model)
       ) (List.range 0 63))
     ]
 
@@ -137,7 +134,7 @@ subscriptions model =
     Sub.batch
       [ Ports.hardwareGridButtonPressed (\{x, y, velocity} -> GridButtonPressed x y)
       , Ports.hardwareGridSelectButtonPressed (\{x} -> GridSelectButtonPressed x)
-      , GameOfLifeGridAdaptor.subscriptions (model.appLayer == ShowGameOfLifeGridAdaptor) UpdateGameOfLife
+      , Sub.map GameOfLifeGridAdaptorMsg (GameOfLifeGridAdaptor.subscriptions (model.appLayer == ShowGameOfLifeGridAdaptor))
       ]
 
 ---- PROGRAM ----
